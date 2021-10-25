@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <string.h>
+#include <algorithm>
+
 
 void printArray(int* a, int size);
 void printArray(char* a, int size);
@@ -17,7 +19,7 @@ int findMax(int* a, int size) {
 
 void fillArrayRandomly(int* a, int size) {
 	for (int i = 0; i < size; ++i) {
-		a[i] = rand() % 1000;
+		a[i] = rand() % 10;
 	}
 }
 
@@ -63,11 +65,121 @@ char* makeRandomHex(char* hexNumber, int size) {
 	return hexNumber;
 }
 
-void reverseArray(char* array, int size) {
+//void reverseArray(char* array, int size) {
+//	for (int i = 0; i < size / 2; ++i) {
+//		int temp = array[i];
+//		array[i] = array[size - i - 1];
+//		array[size - i - 1] = temp;
+//	}
+//}
+
+template<class Type>
+Type reverseArray(Type array, int size) {
 	for (int i = 0; i < size / 2; ++i) {
 		int temp = array[i];
 		array[i] = array[size - i - 1];
 		array[size - i - 1] = temp;
+	}
+	return array;
+}
+
+void reverseArrayAroundMean(int* array, int size) {
+	double mean = findMean(array, size);
+	int i = 0;
+	int j = size - 1;
+	double eps = 1.0E-20;
+	while (i < j) {
+		while (static_cast<double>(array[i]) < mean) {
+			i++;
+		}
+		while (static_cast<double>(array[j]) > mean) {
+			j--;
+		}
+		int temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+		i++;
+		j--;
+	}
+}
+
+void printTheMostFrequentElement(int* a, int size) {
+	int current = 0;
+	int maxFrequent = 0;
+	int maxFrequency = 0;
+	int currFrequency = 1;
+	for (int i = 1; i < size; ++i) {
+		if (a[i] == current) {
+			currFrequency++;
+			if (currFrequency > maxFrequency) {
+				maxFrequency = currFrequency;
+				maxFrequent = i;
+			}
+		}
+		else {
+			current = a[i];
+			currFrequency = 1;
+		}
+	}
+	std::cout << "the most frequent element: " << a[maxFrequent] << 
+		", number of occurences: " << maxFrequency << "\n";
+}
+
+void merge(int array[], int const left, int const mid, int const right)
+{
+	auto const subArrayOne = mid - left + 1;
+	auto const subArrayTwo = right - mid;
+
+	auto* leftArray = new int[subArrayOne],
+		* rightArray = new int[subArrayTwo];
+
+	for (auto i = 0; i < subArrayOne; i++)
+		leftArray[i] = array[left + i];
+	for (auto j = 0; j < subArrayTwo; j++)
+		rightArray[j] = array[mid + 1 + j];
+
+	auto indexOfSubArrayOne = 0, // Initial index of first sub-array
+		indexOfSubArrayTwo = 0; // Initial index of second sub-array
+	int indexOfMergedArray = left; // Initial index of merged array
+
+	while (indexOfSubArrayOne < subArrayOne && indexOfSubArrayTwo < subArrayTwo) {
+		if (leftArray[indexOfSubArrayOne] <= rightArray[indexOfSubArrayTwo]) {
+			array[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
+			indexOfSubArrayOne++;
+		}
+		else {
+			array[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
+			indexOfSubArrayTwo++;
+		}
+		indexOfMergedArray++;
+	}
+	while (indexOfSubArrayOne < subArrayOne) {
+		array[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
+		indexOfSubArrayOne++;
+		indexOfMergedArray++;
+	}
+	while (indexOfSubArrayTwo < subArrayTwo) {
+		array[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
+		indexOfSubArrayTwo++;
+		indexOfMergedArray++;
+	}
+}
+
+void mergeSort(int* array, int const begin, int const end)
+{
+	if (begin >= end)
+		return; // Returns recursively
+
+	auto mid = begin + (end - begin) / 2;
+	mergeSort(array, begin, mid);
+	mergeSort(array, mid + 1, end);
+	merge(array, begin, mid, end);
+}
+
+void fillDoubleArray(int* first, int* second, int* a, int size) {
+	for (int i = 0; i < size; i++) {
+		a[2 * i] = first[i];
+		a[2 * i + 1] = second[i];
 	}
 }
 
@@ -83,14 +195,38 @@ int main() {
 	std::cout << findMax(a, n) << "\n";
 	printIndexesOfMax(a, n);
 	std::cout << findMean(a, n) << "\n";
+	reverseArrayAroundMean(a, n);
+	printArray(a, n);
 	delete[] a;
 
 	char* hexNumber = new char[n];
 	hexNumber = makeRandomHex(hexNumber, n);
 	printArray(hexNumber, n);
-	reverseArray(hexNumber, n);
+	reverseArray<char*>(hexNumber, n);
 	printArray(hexNumber, n);
 	delete[] hexNumber;
+
+	int* a2 = new int[n];
+	fillArrayRandomly(a2, n);
+	std::cout << "A2:\n";
+	printArray(a2, n);
+	mergeSort(a2, 0, n - 1);
+	printArray(a2, n);
+	printTheMostFrequentElement(a2, n);
+	delete[] a2;
+
+	int* a3 = new int[n];
+	fillArrayRandomly(a3, n);
+	int* a4 = new int[n];
+	fillArrayRandomly(a4, n);
+	printArray(a3, n);
+	printArray(a4, n);
+	int* a5 = new int[2 * n];
+	fillDoubleArray(a3, a4, a5, n);
+	printArray(a5, 2 * n);
+	delete[] a3;
+	delete[] a4;
+	delete[] a5;
 
 	return 0;
 }
