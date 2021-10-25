@@ -2,6 +2,9 @@
 #include <cstdlib>
 #include <string.h>
 
+void printArray(int* a, int size);
+void printArray(char* a, int size);
+
 int findMax(int* a, int size) {
 	int max = INT_MIN;
 	for (int i = 0; i < size; ++i) {
@@ -25,6 +28,13 @@ void printArray(int* a, int size) {
 	std::cout << "\n";
 }
 
+void printArray(char* a, int size) {
+	for (int i = 0; i < size; ++i) {
+		std::cout << a[i];
+	}
+	std::cout << "\n";
+}
+
 void printIndexesOfMax(int* a, int size) {
 	int max = findMax(a, size);
 	for (int i = 0; i < size; ++i) {
@@ -43,17 +53,14 @@ double findMean(int* a, int size) {
 	return mean;
 }
 
-void printRandomHex(int size) {
+char* makeRandomHex(char* hexNumber, int size) {
 	char hexDigits[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
 	'9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
-	char* hexNumber = new char[size];
 	for (int i = 0; i < size; ++i) {
 		hexNumber[i] = hexDigits[rand() % 16];
-		std::cout << hexNumber[i];
 	}
-	std::cout << "\n";
-	delete[] hexNumber;
+	return hexNumber;
 }
 
 int main() {
@@ -69,6 +76,12 @@ int main() {
 	printIndexesOfMax(a, n);
 	std::cout << findMean(a, n) << "\n";
 	delete[] a;
-	printRandomHex(n);
+
+	char* hexNumber = new char[n];
+	hexNumber = makeRandomHex(hexNumber, n);
+	printArray(hexNumber, n);
+
+	delete[] hexNumber;
+
 	return 0;
 }
