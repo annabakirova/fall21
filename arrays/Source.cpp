@@ -63,6 +63,14 @@ char* makeRandomHex(char* hexNumber, int size) {
 	return hexNumber;
 }
 
+void reverseArray(char* array, int size) {
+	for (int i = 0; i < size / 2; ++i) {
+		int temp = array[i];
+		array[i] = array[size - i - 1];
+		array[size - i - 1] = temp;
+	}
+}
+
 int main() {
 
 	int n;
@@ -80,7 +88,8 @@ int main() {
 	char* hexNumber = new char[n];
 	hexNumber = makeRandomHex(hexNumber, n);
 	printArray(hexNumber, n);
-
+	reverseArray(hexNumber, n);
+	printArray(hexNumber, n);
 	delete[] hexNumber;
 
 	return 0;
