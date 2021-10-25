@@ -43,6 +43,19 @@ double findMean(int* a, int size) {
 	return mean;
 }
 
+void printRandomHex(int size) {
+	char hexDigits[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
+	'9', 'a', 'b', 'c', 'd', 'e', 'f' };
+
+	char* hexNumber = new char[size];
+	for (int i = 0; i < size; ++i) {
+		hexNumber[i] = hexDigits[rand() % 16];
+		std::cout << hexNumber[i];
+	}
+	std::cout << "\n";
+	delete[] hexNumber;
+}
+
 int main() {
 
 	int n;
@@ -56,8 +69,6 @@ int main() {
 	printIndexesOfMax(a, n);
 	std::cout << findMean(a, n) << "\n";
 	delete[] a;
-
-
-
+	printRandomHex(n);
 	return 0;
 }
