@@ -4,7 +4,7 @@ unsigned long long readULL() {
 	std::cout << "Enter a number:";
 	unsigned long long n;
 	std::cin >> n;
-	while (std::cin.fail() || (static_cast<unsigned long long>(n) != n) || n > ULLONG_MAX) {
+	while (std::cin.fail() || (static_cast<unsigned long long>(n) != n)) {
 		std::cout << "Wrong input, try again:\n";
 		std::cin.clear();
 		std::cin.ignore(256, '\n');
