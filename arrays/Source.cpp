@@ -8,7 +8,7 @@ void printArray(int* a, int size);
 void printArray(char* a, int size);
 
 int findMax(int* a, int size) {
-	int max = INT_MIN;
+	int max = a[0];
 	for (int i = 0; i < size; ++i) {
 		if (a[i] > max) {
 			max = a[i];
@@ -19,7 +19,7 @@ int findMax(int* a, int size) {
 
 void fillArrayRandomly(int* a, int size) {
 	for (int i = 0; i < size; ++i) {
-		a[i] = rand() % 10;
+		a[i] = rand() % 100;
 	}
 }
 
@@ -65,18 +65,10 @@ char* makeRandomHex(char* hexNumber, int size) {
 	return hexNumber;
 }
 
-//void reverseArray(char* array, int size) {
-//	for (int i = 0; i < size / 2; ++i) {
-//		int temp = array[i];
-//		array[i] = array[size - i - 1];
-//		array[size - i - 1] = temp;
-//	}
-//}
-
 template<class Type>
-Type reverseArray(Type array, int size) {
+Type reverseArray(Type array, size_t size) {
 	for (int i = 0; i < size / 2; ++i) {
-		int temp = array[i];
+		size_t temp = array[i];
 		array[i] = array[size - i - 1];
 		array[size - i - 1] = temp;
 	}
@@ -106,7 +98,7 @@ void reverseArrayAroundMean(int* array, int size) {
 void printTheMostFrequentElement(int* a, int size) {
 	int current = 0;
 	int maxFrequent = 0;
-	int maxFrequency = 0;
+	int maxFrequency = 1;
 	int currFrequency = 1;
 	for (int i = 1; i < size; ++i) {
 		if (a[i] == current) {
@@ -183,6 +175,36 @@ void fillDoubleArray(int* first, int* second, int* a, int size) {
 	}
 }
 
+void printArrayAsMatrix(int* matrix, int rows, int columns) {
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < columns; ++j) {
+			printf("%3d ", matrix[i * columns + j]);
+		}
+		std::cout << "\n";
+	}
+}
+
+void transposeMatrix(int* matrix, bool* isSwapped, int rows, int columns) {
+	int swapped = 0;
+	int currentIndex = 1;
+	int currentValue = matrix[currentIndex];
+	int nextIndex;
+	int nextValue;
+	while (swapped <= rows * columns - 2) {
+		nextIndex = currentIndex / columns + rows * (currentIndex % columns);
+		nextValue = matrix[nextIndex];
+		matrix[nextIndex] = currentValue;
+		isSwapped[currentIndex] = true;
+		currentIndex = nextIndex;
+		currentValue = nextValue;
+		++swapped;
+		while (isSwapped[currentIndex] && currentIndex < rows * columns - 1) {
+			currentIndex++;
+			currentValue = matrix[currentIndex];
+		}
+	}
+}
+
 int main() {
 
 	int n;
@@ -227,6 +249,26 @@ int main() {
 	delete[] a3;
 	delete[] a4;
 	delete[] a5;
+
+
+	std::cout << "Enter a number of rows and columns:\n";
+	int rows;
+	int columns;
+	std::cin >> rows >> columns;
+	int* matrix = new int[rows * columns];
+	bool* isSwapped = new bool[rows * columns];
+	for (int i = 0; i < rows * columns; ++i) {
+		isSwapped[i] = false;
+	}
+
+	fillArrayRandomly(matrix, rows * columns);
+	printArray(matrix, rows * columns);
+	std::cout << "A:\n";
+	printArrayAsMatrix(matrix, rows, columns);
+	std::cout << "\n";
+	transposeMatrix(matrix, isSwapped, rows, columns);
+	std::cout << "A^T:\n";
+	printArrayAsMatrix(matrix, columns, rows);
 
 	return 0;
 }
