@@ -272,29 +272,30 @@ template<class T> T& getElement(T** array, size_t rows, size_t cols, size_t r, s
 	return array[r][c];
 }
 
-bool testCheckValue5() {
-	int** a = new int*[3];
-	for (int i = 0; i < 3; i++) {
-		a[i] = new int[3];
-		for (int j = 0; j < 3; j++) {
+bool testCheckValue5(int n) {
+	int** a = new int*[n];
+	for (int i = 0; i < n; i++) {
+		a[i] = new int[n];
+		for (int j = 0; j < n; j++) {
 			a[i][j] = 5;
 		}
 	}
-	print2Darray(a, 3, 3);
 	bool isInside = true;
 	bool res = true;
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			if (!isInside || !(5 == getElement(a, 3, 3, i, j, isInside))) {
-				for (int i = 0; i < 3; i++) {
-					delete[] a[i];
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			int res = getElement(a, 2, 2, i, j, isInside);
+			if (!isInside || !(5 == res)) {
+				std::cout << i << " " << j << "\n";
+				for (int i = 0; i < n; i++) {
+					delete a[i];
 				}
 				delete[] a;
 				return false;
 			}
 		}
 	}
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < n; i++) {
 		delete[] a[i];
 	}
 	delete[] a;
@@ -304,12 +305,14 @@ bool testCheckValue5() {
 
 int main() {
 
-	if (testCheckValue5()) {
+	if (testCheckValue5(2) && !testCheckValue5(4)) {
 		std::cout << "passed\n";
 	}
 	else {
 		std::cout << "failed\n";
 	}
+
+
 
 	std::cout << "Enter a number of rows and columns:\n";
 	int rows = 3;
