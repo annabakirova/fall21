@@ -20,6 +20,19 @@ void fillArrayRandomly(int* a, int size) {
 	}
 }
 
+template<class Type>
+void fillArrayWithConstant(Type* a, size_t size, size_t c) {
+	for (size_t i = 0; i < size; ++i) {
+		a[i] = c;
+	}
+}
+
+template<class Type>
+void fill2DArrayWithConstant(Type* a, size_t rows, size_t cols, size_t c) {
+	for (size_t i = 0; i < rows; ++i) {
+		fillArrayWithConstant(a[i], cols, c);
+	}
+}
 
 void fill2DArrayRandomly(int** a, int rows, int cols) {
 	for (int i = 0; i < rows; ++i) {
@@ -259,26 +272,44 @@ template<class T> T& getElement(T** array, size_t rows, size_t cols, size_t r, s
 	return array[r][c];
 }
 
-bool testCheckValue() {
+bool testCheckValue5() {
 	int** a = new int*[3];
 	for (int i = 0; i < 3; i++) {
 		a[i] = new int[3];
-		a[i][0] = 3 * i;
-		a[i][1] = 3 * i + 1;
-		a[i][2] = 3 * i + 2;
+		for (int j = 0; j < 3; j++) {
+			a[i][j] = 5;
+		}
 	}
+	print2Darray(a, 3, 3);
 	bool isInside = true;
-	if (isInside && 2 == getElement(a, 3, 3, 0, 2, isInside) && 6 == getElement(a, 3, 3, 2, 0, isInside)) {
-		return true;
+	bool res = true;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			if (!isInside || !(5 == getElement(a, 3, 3, i, j, isInside))) {
+				for (int i = 0; i < 3; i++) {
+					delete[] a[i];
+				}
+				delete[] a;
+				return false;
+			}
+		}
 	}
-	return false;
-
+	for (int i = 0; i < 3; i++) {
+		delete[] a[i];
+	}
+	delete[] a;
+	return true;
 }
 
 
 int main() {
 
-	std::cout << testCheckValue() << "\n";
+	if (testCheckValue5()) {
+		std::cout << "passed\n";
+	}
+	else {
+		std::cout << "failed\n";
+	}
 
 	std::cout << "Enter a number of rows and columns:\n";
 	int rows = 3;
@@ -296,20 +327,6 @@ int main() {
 		delete[] d[i];
 	}
 	delete[] d;
-
-	int** a = new int* [3];
-	for (int i = 0; i < 3; i++) {
-		a[i] = new int[3];
-		a[i][0] = 3 * i;
-		a[i][1] = 3 * i + 1;
-		a[i][2] = 3 * i + 2;
-	}
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			std::cout << a[i][j] << " ";
-		}
-	}
-
 
 	return 0;
 }
