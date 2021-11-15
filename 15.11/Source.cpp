@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <string.h>
 #include <algorithm>
-
+#include <cassert>
 
 int findMax(int* a, int size) {
 	int max = a[0];
@@ -19,6 +19,7 @@ void fillArrayRandomly(int* a, int size) {
 		a[i] = rand() % 100;
 	}
 }
+
 
 void fill2DArrayRandomly(int** a, int rows, int cols) {
 	for (int i = 0; i < rows; ++i) {
@@ -250,13 +251,39 @@ void printSpiral(int** d, int rows, int cols) {
 //	
 //}
 
+template<class T> T& getElement(T** array, size_t rows, size_t cols, size_t r, size_t c, bool& isInside) {
+	if (r >= rows || c >= cols) {
+		isInside = false;
+		return array[0][0];
+	}
+	return array[r][c];
+}
+
+bool testCheckValue() {
+	int** a = new int*[3];
+	for (int i = 0; i < 3; i++) {
+		a[i] = new int[3];
+		a[i][0] = 3 * i;
+		a[i][1] = 3 * i + 1;
+		a[i][2] = 3 * i + 2;
+	}
+	bool isInside = true;
+	if (isInside && 2 == getElement(a, 3, 3, 0, 2, isInside) && 6 == getElement(a, 3, 3, 2, 0, isInside)) {
+		return true;
+	}
+	return false;
+
+}
+
 
 int main() {
+
+	std::cout << testCheckValue() << "\n";
 
 	std::cout << "Enter a number of rows and columns:\n";
 	int rows = 3;
 	int cols = 4;
-	std::cin >> rows >> cols;
+	//std::cin >> rows >> cols;
 	int** d = create2DArray(rows, cols);
 	fill2DArrayRandomly(d, rows, cols);
 	print2Darray(d, rows, cols);
@@ -270,21 +297,19 @@ int main() {
 	}
 	delete[] d;
 
-
-	/*rows = 3;
-	cols = 4;
-	int** image = create2DArray(rows, cols);
-	fill2DArrayRandomly(image, rows, cols);
-	print2Darray(image, rows, cols);
-	sumArray(image, rows, cols);
-	print2Darray(image, rows, cols);
-	int num;
-	std::cin >> num;
-	std::cout << findElement(image, 0, 3, 4, num);
-	for (int i = 0; i < rows; ++i) {
-		delete[] image[i];
+	int** a = new int* [3];
+	for (int i = 0; i < 3; i++) {
+		a[i] = new int[3];
+		a[i][0] = 3 * i;
+		a[i][1] = 3 * i + 1;
+		a[i][2] = 3 * i + 2;
 	}
-	delete[] image;*/
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			std::cout << a[i][j] << " ";
+		}
+	}
+
 
 	return 0;
 }
