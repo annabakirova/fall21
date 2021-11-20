@@ -2,22 +2,20 @@
 #include <cstdlib>
 #include <string.h>
 #include <algorithm>
-#include <cassert>
 
-int findMax(int* a, int size) {
-	int max = a[0];
-	for (int i = 0; i < size; ++i) {
-		if (a[i] > max) {
-			max = a[i];
-		}
-	}
-	return max;
-}
 
 void fillArrayRandomly(int* a, int size) {
 	for (int i = 0; i < size; ++i) {
 		a[i] = rand() % 100;
 	}
+}
+
+template<class T> T& getElement(T** array, size_t rows, size_t cols, size_t r, size_t c, bool& isInside) {
+	if (r >= rows || c >= cols) {
+		isInside = false;
+		return array[0][0];
+	}
+	return array[r][c];
 }
 
 template<class Type>
@@ -28,10 +26,51 @@ void fillArrayWithConstant(Type* a, size_t size, size_t c) {
 }
 
 template<class Type>
-void fill2DArrayWithConstant(Type* a, size_t rows, size_t cols, size_t c) {
+void fill2DArrayWithConstant(Type** a, size_t rows, size_t cols, size_t c) {
 	for (size_t i = 0; i < rows; ++i) {
 		fillArrayWithConstant(a[i], cols, c);
 	}
+}
+
+
+void initIdMatrix(int** a, int rows, int cols) {
+	if (rows == cols) {
+		for (int i = 0; i < rows; ++i) {
+			fillArrayWithConstant(a[i], cols, 0);
+		}
+		for (int i = 0; i < rows; ++i) {
+			a[i][i] = 1;
+		}
+	}
+
+}
+
+bool testInitIdMatrix() {
+	int** a = new int* [3];
+	for (int i = 0; i < 3; i++) {
+		a[i] = new int[3];
+	}
+	initIdMatrix(a, 3, 3);
+
+	bool isInside = true;
+	bool res = true;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			int res = getElement(a, 3, 3, i, j, isInside);
+			if (!isInside || i == j && res != 1 || i != j && res != 0) {
+				for (int i = 0; i < 3; i++) {
+					delete a[i];
+				}
+				delete[] a;
+				return false;
+			}
+		}
+	}
+	for (int i = 0; i < 3; i++) {
+		delete[] a[i];
+	}
+	delete[] a;
+	return true;
 }
 
 void fill2DArrayRandomly(int** a, int rows, int cols) {
@@ -72,57 +111,6 @@ Type reverseArray(Type array, size_t size) {
 		array[size - i - 1] = temp;
 	}
 	return array;
-}
-
-void merge(int array[], int const left, int const mid, int const right)
-{
-	auto const subArrayOne = mid - left + 1;
-	auto const subArrayTwo = right - mid;
-
-	auto* leftArray = new int[subArrayOne],
-		* rightArray = new int[subArrayTwo];
-
-	for (auto i = 0; i < subArrayOne; i++)
-		leftArray[i] = array[left + i];
-	for (auto j = 0; j < subArrayTwo; j++)
-		rightArray[j] = array[mid + 1 + j];
-
-	auto indexOfSubArrayOne = 0, // Initial index of first sub-array
-		indexOfSubArrayTwo = 0; // Initial index of second sub-array
-	int indexOfMergedArray = left; // Initial index of merged array
-
-	while (indexOfSubArrayOne < subArrayOne && indexOfSubArrayTwo < subArrayTwo) {
-		if (leftArray[indexOfSubArrayOne] <= rightArray[indexOfSubArrayTwo]) {
-			array[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
-			indexOfSubArrayOne++;
-		}
-		else {
-			array[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
-			indexOfSubArrayTwo++;
-		}
-		indexOfMergedArray++;
-	}
-	while (indexOfSubArrayOne < subArrayOne) {
-		array[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
-		indexOfSubArrayOne++;
-		indexOfMergedArray++;
-	}
-	while (indexOfSubArrayTwo < subArrayTwo) {
-		array[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
-		indexOfSubArrayTwo++;
-		indexOfMergedArray++;
-	}
-}
-
-void mergeSort(int* array, int const begin, int const end)
-{
-	if (begin >= end)
-		return; // Returns recursively
-
-	auto mid = begin + (end - begin) / 2;
-	mergeSort(array, begin, mid);
-	mergeSort(array, mid + 1, end);
-	merge(array, begin, mid, end);
 }
 
 void transposeMatrix(int* matrix, bool* isSwapped, int rows, int columns) {
@@ -186,10 +174,10 @@ void printDiagonal(int** d, int rows, int cols) {
 	else {
 		while (r < rows - 1 || c < cols - 1) {
 			std::cout << d[r][c] << " ";
-			if (r == 0 && (c % 2) == 0 && c != cols - 1 || r == rows - 1 && (rows - c) % 2 == 0) {
+			if (r == 0 && c % 2 == 0 && c != cols - 1 || r == rows - 1 && abs(rows - c) % 2 == 0) {
 				c++;
 			}
-			else if (c == 0 && r % 2 == 1 && r != rows - 1 || c == cols - 1 && (cols - r) % 2 == 1) {
+			else if (c == 0 && r % 2 == 1 && r != rows - 1 || c == cols - 1 && abs(cols - r) % 2 == 1) {
 				r++;
 			}
 			else if ((r + c) % 2 == 0) {
@@ -242,52 +230,20 @@ void printSpiral(int** d, int rows, int cols) {
 	std::cout << std::endl;
 }
 
-//int findElement(int** image, int index, int rows, int columns, int num) {  //index from which diagonal element to start 
-//	int diag = (rows < columns) ? rows : columns;     // a number of diagonals in subarray
-//	int i = index;
-//
-//	if (rows == 1) {
-//		return binarySearch(image[rows], num, index, columns);
-//	}
-//
-//	while (i < diag && image[i][i] <= num) {
-//		if (image[i][i] == num) {
-//			return i;
-//		}
-//		++i;
-//	}
-//	if (i > 0) {
-//		return findElement(image, index, rows - i + 1, i - 1, num) +
-//			+ findElement(image, i - 1, i - 1, columns - i + 1, num) + 1;
-//	}
-//	return -1;
-//	
-//}
-
-template<class T> T& getElement(T** array, size_t rows, size_t cols, size_t r, size_t c, bool& isInside) {
-	if (r >= rows || c >= cols) {
-		isInside = false;
-		return array[0][0];
+bool testCheckValue(int value, int testValue) {
+	int** a = new int* [3];
+	for (int i = 0; i < 3; i++) {
+		a[i] = new int[3];
 	}
-	return array[r][c];
-}
+	fill2DArrayWithConstant(a, 3, 3, value);
 
-bool testCheckValue5(int n) {
-	int** a = new int*[n];
-	for (int i = 0; i < n; i++) {
-		a[i] = new int[n];
-		for (int j = 0; j < n; j++) {
-			a[i][j] = 5;
-		}
-	}
 	bool isInside = true;
 	bool res = true;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			int res = getElement(a, 2, 2, i, j, isInside);
-			if (!isInside || !(5 == res)) {
-				std::cout << i << " " << j << "\n";
-				for (int i = 0; i < n; i++) {
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			int res = getElement(a, 3, 3, i, j, isInside);
+			if (!isInside || !(testValue == res)) {
+				for (int i = 0; i < 3; i++) {
 					delete a[i];
 				}
 				delete[] a;
@@ -295,7 +251,7 @@ bool testCheckValue5(int n) {
 			}
 		}
 	}
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < 3; i++) {
 		delete[] a[i];
 	}
 	delete[] a;
@@ -305,19 +261,24 @@ bool testCheckValue5(int n) {
 
 int main() {
 
-	if (testCheckValue5(2) && !testCheckValue5(4)) {
+	if (testCheckValue(5, 5) && !testCheckValue(3, 5)) {
 		std::cout << "passed\n";
 	}
 	else {
 		std::cout << "failed\n";
 	}
 
-
+	if (testInitIdMatrix()) {
+		std::cout << "passed\n";
+	}
+	else {
+		std::cout << "failed\n";
+	}
 
 	std::cout << "Enter a number of rows and columns:\n";
 	int rows = 3;
 	int cols = 4;
-	//std::cin >> rows >> cols;
+	std::cin >> rows >> cols;
 	int** d = create2DArray(rows, cols);
 	fill2DArrayRandomly(d, rows, cols);
 	print2Darray(d, rows, cols);
