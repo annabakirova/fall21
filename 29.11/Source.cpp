@@ -66,11 +66,76 @@ void saveEvery4ByteToFile(string in, string out) {
 	delete[] buffer;
 }
 
+void changeWidthHeight(string pathToBMP) {
+	ifstream image;
+	image.open(pathToBMP, ios::binary | ios::in);
+	if (!image.is_open()) {
+		cout << "failed to open";
+	}
+	else {
+		image.seekg(14, ios::beg);    //bitmapinnfoheader is 14 bytes long
+		char* biSize = new char[4];
+		char* biWidth = new char[4];
+		char* biHeight = new char[4];
+		image.read(biSize, 4 * sizeof(char));
+		image.read(biWidth, 4 * sizeof(char));
+		image.read(biHeight, 4 * sizeof(char));
+		//if biSize >= 40 => width and height take up 4 bytes each
+		image.close();
+
+		ofstream image2;
+		image2.open(pathToBMP, ios::binary | ios::in | ios::out);
+		if (!image2.is_open()) {
+			cout << "failed to open";
+		}
+		else {
+			image2.seekp(18, ios::beg);
+			image2.write(biHeight, 4 * sizeof(char));
+			image2.seekp(22, ios::beg);
+			image2.write(biWidth, 4 * sizeof(char));
+			image2.close();
+		}
+		delete[] biSize;
+		delete[] biHeight;
+		delete[] biWidth;
+	}
+}
+
+void printWidthHeight(string pathToBMP) {
+	ifstream image;
+	image.open(pathToBMP, ios::binary | ios::in);
+	if (!image.is_open()) {
+		cout << "failed to open";
+	}
+	else {
+		image.seekg(18, ios::beg);
+		char* biWidth = new char[4];
+		char* biHeight = new char[4];
+		image.read(biWidth, 4 * sizeof(char));
+		image.read(biHeight, 4 * sizeof(char));
+		for (int i = 0; i < 4; i++) {
+			printf("%02hhX", (unsigned char)biWidth[i]);
+		}
+		cout << endl;
+		for (int i = 0; i < 4; i++) {
+			printf("%02hhX", (unsigned char)biHeight[i]);
+		}
+		cout << endl;
+		image.close();
+		delete[] biHeight;
+		delete[] biWidth;
+	}
+}
+
 int main(int argc, char** argv) {
-	if (argc > 2) {
-		cout << argc << endl;
+	if (argc >= 2) {
 		string in = argv[1];
-		cout << in << endl;
 		cout << "element at row " << 10 << " and column 2 is " << getElementByIndex(in, 10, 2) << endl;
+	}
+	if (argc >= 3) {
+		string pathToBMP = argv[2];
+		printWidthHeight(pathToBMP);
+		changeWidthHeight(pathToBMP);
+		printWidthHeight(pathToBMP);
 	}
 }
