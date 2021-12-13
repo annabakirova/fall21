@@ -157,7 +157,7 @@ void copyChangedFile(string in, string out) {
 	delete[] buffer;
 }
 
-void printPixelArray(string path) {
+void print8BitPixelArray(string path) {
 	int start = getBfOffBits(path);
 	ifstream image;
 	image.open(path, ios::binary | ios::in);
@@ -192,7 +192,66 @@ void printPixelArray(string path) {
 				cout << endl;
 			}
 		}
+		delete[] buffer;
 		image.close();
+	}
+}
+
+void print24BitPixelArray(string path) {
+	int start = getBfOffBits(path);
+	ifstream image;
+	image.open(path, ios::binary | ios::in);
+	if (!image.is_open()) {
+		cout << "failed to open";
+	}
+	else {
+		image.seekg(18, ios::beg);
+		int width;
+		image.read((char*)&width, sizeof(int));
+		image.seekg(start, ios::beg);
+		if (width % 32 != 0) {
+			width = width + 32 - (width % 32);
+		}
+		cout << "new width: " << width << endl;
+		unsigned char* buffer = new unsigned char[3];
+		int count = 0;
+		while (image.tellg() != -1) {
+			image.read((char*)buffer, 3 * sizeof(char));
+			cout << (int)buffer[0] << " " << (int)buffer[1] << " " << (int)buffer[2] << " ";
+			count++;
+			if (count % width == 0) {
+				cout << endl;
+			}
+		}
+		delete[] buffer;
+		image.close();
+	}
+}
+
+void changeRedBlue24Bit(string path, string path2) {
+	int start = getBfOffBits(path);
+	ifstream image;
+	ofstream image2;
+	image.open(path, ios::binary | ios::in | ios::out);
+	image2.open(path2, ios::binary | ios::in | ios::out | ios::trunc);
+	if (!image.is_open() && !image2.is_open()) {
+		cout << "failed to open";
+	}
+	else {
+		unsigned char* buffer = new unsigned char[start];
+		image.read((char*)buffer, start * sizeof(char));
+		image2.write((char*)buffer, start * sizeof(char));
+		buffer = new unsigned char[3];
+		while (image.tellg() != -1) {
+			image.read((char*)buffer, 3 * sizeof(char));
+			image2.write((char*)&buffer[2], sizeof(char));
+			image2.write((char*)&buffer[1], sizeof(char));
+			image2.write((char*)&buffer[0], sizeof(char));
+			image2.flush();
+		}
+		delete[] buffer;
+		image.close();
+		image2.close();
 	}
 }
 
@@ -257,11 +316,19 @@ int main(int argc, char** argv) {
 		string small = argv[1];
 		string big = argv[2];
 
-		printWidthHeight2(small);
-		printWidthHeight2(big);
+		//printWidthHeight2(small);
+		//printWidthHeight2(big);
 
-		printPixelArray("e0000.bmp");
-		printPixelArray("e000.bmp");
-		printPixelArray("у00.bmp");
+		changeRedBlue24Bit("red.bmp", "red1.bmp");
+		changeRedBlue24Bit("blue.bmp", "blue1.bmp");
+		changeRedBlue24Bit("green.bmp", "green1.bmp");
+
+		print24BitPixelArray("red.bmp");
+		print24BitPixelArray("blue.bmp");
+		print24BitPixelArray("green.bmp");
+
+		print8BitPixelArray("e0000.bmp");
+		print8BitPixelArray("e000.bmp");
+		print8BitPixelArray("e00.bmp");
 	}
 }
