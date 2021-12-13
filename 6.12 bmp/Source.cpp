@@ -166,22 +166,30 @@ void printPixelArray(string path) {
 	}
 	else {
 		image.seekg(18, ios::beg);
-		int biWidth;
-		image.read((char*)&biWidth, sizeof(int));
+		int width;
+		int widthInBytes;
+		image.read((char*)&width, sizeof(int));
 		image.seekg(0, ios::beg);
-
-		unsigned char buffer;
+		if (width % 32 != 0) {
+			width = width + 32 - (width % 32);
+		}
+		cout << "new width: " << width << endl;
+		widthInBytes = width / 8;
+		unsigned char* buffer = new unsigned char[widthInBytes];
 		image.seekg(start, ios::beg);
 		int count = 0;
 		while (image.tellg() != -1) {
-			image.read((char*)&buffer, sizeof(char));
-			for (unsigned char mask = 0x80; mask != 0; mask >>= 1) {
-				cout << ((buffer & mask) == 0) ? ' ' : 'x';
-				count++;
-				if (count % biWidth == 0) {
-					cout << endl;
-					count == 0;
+			image.read((char*)buffer, widthInBytes * sizeof(char));
+			for (int i = 0; i < widthInBytes; i++) {
+				unsigned char mask = 0x80;
+				for (int j = 0; j < 8; mask >>= 1, j++) {
+					string out = ((buffer[i] & mask) == 0) ? " " : "x";
+					cout << out;
+					count++;
 				}
+			}
+			if (count % width == 0) {
+				cout << endl;
 			}
 		}
 		image.close();
@@ -207,16 +215,27 @@ void insertBMP(string pathToBig, string pathToSmall) {
 		image2.seekg(18, ios::beg);
 		image2.read((char*)&biWidth2, sizeof(int));
 		image2.read((char*)&biHeight2, sizeof(int));
-		image2.close();
 		cout << biWidth1 << " " << biHeight1 << endl;
 		cout << biWidth2 << " " << biHeight2 << endl;
+		image2.close();
+
 		ofstream image2;
 		image2.open(pathToBig, ios::binary | ios::in | ios::out);
 		if (!image2.is_open()) {
 			cout << "failed to open";
 			return;
 		}
-		char byte;
+
+		int start = getBfOffBits(pathToSmall);
+		image1.seekg(start, ios::beg);
+		char* buffer = new char[biWidth1];
+		//image1.seekg((-10) * biWidth1, ios::end);
+		image1.read(buffer, biWidth1);
+		for (int i = 0; i < biWidth1; i++) {
+			printf("%02hhX ", (unsigned char)buffer[i]);
+		}
+		delete[] buffer;
+		/*char byte;
 		for (int i = 1; i <= biHeight1; i++) {
 			for (int j = 0; i < biWidth1; j++) {
 				int k = (-i) * biWidth1 - j;
@@ -226,7 +245,7 @@ void insertBMP(string pathToBig, string pathToSmall) {
 				image2.seekp(l, ios::end);
 				image2.write(&byte, 1);
 			}
-		}
+		}*/
 
 		image1.close();
 		image2.close();
@@ -234,37 +253,15 @@ void insertBMP(string pathToBig, string pathToSmall) {
 }
 
 int main(int argc, char** argv) {
-	/*if (argc >= 2) {
-		string in = argv[1];
-		cout << "element at row " << 10 << " and column 2 is " << getElementByIndex(in, 10, 2) << endl;
-	}*/
 	if (argc >= 3) {
 		string small = argv[1];
 		string big = argv[2];
-		cout << small << " " << big;
-		insertBMP(small, big);
 
+		printWidthHeight2(small);
+		printWidthHeight2(big);
 
-	/*	cout << getBfOffBits(pathToBMP) << endl;
-		printBiBitCount(pathToBMP);
-		printWidthHeight2(pathToBMP);
-		printPixelArray(pathToBMP);*/
-
-		//string out = argv[3];
-		//copyChangedFile(pathToBMP, out);
-		//printWidthHeight2(out);
-		//printPixelArray(out);
-
-		//copyFile(pathToBMP, out);
-
-		/*printWidthHeight2(pathToBMP);
-		cout << "bits per pixel: ";
-		printBiBitCount(pathToBMP);
-		getBfOffBits(pathToBMP);
-		changeWidthHeight(pathToBMP);
-		printWidthHeight2(pathToBMP);
-		cout << "bits per pixel: ";
-		printBiBitCount(pathToBMP);
-		getBfOffBits(pathToBMP);*/
+		printPixelArray("e0000.bmp");
+		printPixelArray("e000.bmp");
+		printPixelArray("у00.bmp");
 	}
 }
