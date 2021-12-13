@@ -255,7 +255,7 @@ void changeRedBlue24Bit(string path, string path2) {
 	}
 }
 
-void insertBMP(string pathToBig, string pathToSmall) {
+void insertBMP(string pathToSmall, string pathToBig) {
 	ifstream image1;
 	ifstream image2;
 	image1.open(pathToSmall, ios::binary | ios::in);
@@ -264,19 +264,26 @@ void insertBMP(string pathToBig, string pathToSmall) {
 		cout << "failed to open";
 	}
 	else {
-		unsigned int biWidth1 = 0;
-		unsigned int biHeight1 = 0;
+		unsigned int width1 = 0;
+		unsigned int height1 = 0;
 		image1.seekg(18, ios::beg);
-		image1.read((char*)&biWidth1, sizeof(int));
-		image1.read((char*)&biHeight1, sizeof(int));
-		unsigned int biWidth2 = 0;
-		unsigned int biHeight2 = 0;
+		image1.read((char*)&width1, sizeof(int));
+		image1.read((char*)&height1, sizeof(int));
+		if (width1 % 32 != 0) {
+			width1 = width1 + 32 - (width1 % 32);
+		}
+		unsigned int width2 = 0;
+		unsigned int height2 = 0;
 		image2.seekg(18, ios::beg);
-		image2.read((char*)&biWidth2, sizeof(int));
-		image2.read((char*)&biHeight2, sizeof(int));
-		cout << biWidth1 << " " << biHeight1 << endl;
-		cout << biWidth2 << " " << biHeight2 << endl;
+		image2.read((char*)&width2, sizeof(int));
+		image2.read((char*)&height2, sizeof(int));
+		if (width2 % 32 != 0) {
+			width2 = width2 + 32 - (width2 % 32);
+		}
+		cout << width1 << " " << height1 << endl;
+		cout << width2 << " " << height2 << endl;
 		image2.close();
+
 
 		ofstream image2;
 		image2.open(pathToBig, ios::binary | ios::in | ios::out);
@@ -284,28 +291,17 @@ void insertBMP(string pathToBig, string pathToSmall) {
 			cout << "failed to open";
 			return;
 		}
-
-		int start = getBfOffBits(pathToSmall);
-		image1.seekg(start, ios::beg);
-		char* buffer = new char[biWidth1];
-		//image1.seekg((-10) * biWidth1, ios::end);
-		image1.read(buffer, biWidth1);
-		for (int i = 0; i < biWidth1; i++) {
-			printf("%02hhX ", (unsigned char)buffer[i]);
+		int sizeInBytes1 = width1 / 8;
+		int sizeInBytes2 = width2 / 8;
+		char* buffer = new char[sizeInBytes1];
+		for (int i = 1; i < height1; i++) {
+			image1.seekg((-1) * sizeInBytes1 * i, ios::end);
+			image1.read(buffer, sizeInBytes1 * sizeof(char));
+			image2.seekp((-1) * sizeInBytes2 * i, ios::end);
+			image2.write(buffer, sizeInBytes1 * sizeof(char));
 		}
-		delete[] buffer;
-		/*char byte;
-		for (int i = 1; i <= biHeight1; i++) {
-			for (int j = 0; i < biWidth1; j++) {
-				int k = (-i) * biWidth1 - j;
-				int l = (-i) * biWidth2 - j;
-				image1.seekg(k, ios::end);
-				image1.read(&byte, 1);
-				image2.seekp(l, ios::end);
-				image2.write(&byte, 1);
-			}
-		}*/
 
+		delete[] buffer;
 		image1.close();
 		image2.close();
 	}
@@ -315,20 +311,23 @@ int main(int argc, char** argv) {
 	if (argc >= 3) {
 		string small = argv[1];
 		string big = argv[2];
+		print8BitPixelArray(big);
+		insertBMP(small, big);
+		print8BitPixelArray(big);
 
 		//printWidthHeight2(small);
 		//printWidthHeight2(big);
 
-		changeRedBlue24Bit("red.bmp", "red1.bmp");
-		changeRedBlue24Bit("blue.bmp", "blue1.bmp");
-		changeRedBlue24Bit("green.bmp", "green1.bmp");
+		//changeRedBlue24Bit("red.bmp", "red1.bmp");
+		//changeRedBlue24Bit("blue.bmp", "blue1.bmp");
+		//changeRedBlue24Bit("green.bmp", "green1.bmp");
 
-		print24BitPixelArray("red.bmp");
-		print24BitPixelArray("blue.bmp");
-		print24BitPixelArray("green.bmp");
+		//print24BitPixelArray("red.bmp");
+		//print24BitPixelArray("blue.bmp");
+		//print24BitPixelArray("green.bmp");
 
-		print8BitPixelArray("e0000.bmp");
-		print8BitPixelArray("e000.bmp");
-		print8BitPixelArray("e00.bmp");
+		//print8BitPixelArray("e0000.bmp");
+		//print8BitPixelArray("e000.bmp");
+		//print8BitPixelArray("e00.bmp");
 	}
 }
