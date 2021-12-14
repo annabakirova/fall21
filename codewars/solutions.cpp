@@ -119,8 +119,6 @@ bool narcissistic( int value ){
   return sum == value;
 }
 
-#include <vector>
-
 long sumTwoSmallestNumbers(std::vector<int> numbers)
 {
   long min1 = 9223372036854775807; //min1 < min2
@@ -191,4 +189,51 @@ int basicOp(char op, int val1, int val2) {
       case '*': return val1 * val2;
       case '/': return val1 / val2;
   }
+}
+
+std::string duplicate_encoder(const std::string& word){
+  std::vector<char> characters;
+  characters.assign(128, ' ');
+  std::string res = "";
+  for (unsigned int i = 0; i < word.size(); ++i) {
+    char symbol = word.at(i);
+    symbol = (symbol >= 65 && symbol <= 90) ? symbol + 32 : symbol;
+    switch (characters[symbol]) {
+        case ' ': characters[symbol] = '('; break;
+        case '(': characters[symbol] = ')'; break;
+    }
+  }
+  for (unsigned i = 0; i < word.size(); ++i) {
+    char symbol = word.at(i);
+    symbol = (symbol >= 65 && symbol <= 90) ? symbol + 32 : symbol;
+    res.push_back(characters[symbol]);
+  }
+  return res;
+}
+
+std::string createPhoneNumber(const int arr [10]){
+  std::string res = "(";
+  for (int i = 0; i < 3; ++i) {
+    res.push_back(arr[i] + 48);
+  }
+  res.push_back(')');
+  res.push_back(' ');
+  for (int i = 3; i < 6; ++i) {
+    res.push_back(arr[i] + 48);
+  }
+  res.push_back('-');
+  for (int i = 6; i < 10; ++i) {
+    res.push_back(arr[i] + 48);
+  }
+  return res;
+}
+
+string reverseString (string str)
+{
+  for (unsigned int i = 0; i < str.size() / 2; ++i) {
+    char temp = str.at(i);
+    str[i] = str.at(str.size() - 1 - i);
+    str[str.size() - 1 - i] = temp;
+  }
+  return str;
 }
