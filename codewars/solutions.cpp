@@ -228,7 +228,7 @@ std::string createPhoneNumber(const int arr [10]){
   return res;
 }
 
-string reverseString (string str)
+std::string reverseString (std::string str)
 {
   for (unsigned int i = 0; i < str.size() / 2; ++i) {
     char temp = str.at(i);
@@ -236,4 +236,66 @@ string reverseString (string str)
     str[str.size() - 1 - i] = temp;
   }
   return str;
+}
+
+int maxSequence(const std::vector<int>& arr){
+  if (arr.size() == 0) { return 0; }
+  int res = arr.at(0);
+  int sum = 0;
+  for (unsigned int i = 0; i < arr.size(); ++i) {
+    sum += arr.at(i);
+    res = (sum > res) ? sum : res;
+    sum = (sum > 0) ? sum : 0;
+  }
+  return (res > 0) ? res : 0;
+}
+
+std::string number_to_string(int num) {
+  return std::to_string(num);
+}
+
+int find_short(std::string str)
+{
+  int minLength = 2147483647;
+  int counter = 0;
+  for (unsigned int i = 0; i < str.size(); ++i) {
+    if (str.at(i) == ' ') {
+      minLength = (minLength > counter) ? counter : minLength;
+      counter = 0;
+      continue;
+    }
+    counter++;
+    if (i == str.size() - 1) {
+      minLength = (minLength > counter) ? counter : minLength;
+      counter = 0;
+    }
+  }
+  return minLength;
+}
+
+bool isAnagram(std::string test, std::string original){
+  if (test.size() != original.size()) { return false; }
+  std::vector<int> symbols;
+  symbols.assign(128, 0);
+  
+  for (unsigned int i = 0; i < test.size(); ++i) {
+    if (test.at(i) >= 65 && test.at(i) <= 90) {
+      symbols.at(test.at(i) + 32)++;
+    }
+    else {
+      symbols.at(test.at(i))++;
+    }
+    if (original.at(i) >= 65 && original.at(i) <= 90) {
+      symbols.at(original.at(i) + 32)--;
+    }
+    else {
+      symbols.at(original.at(i))--;
+    }
+  }
+  
+  for (int i = 0; i < 128; ++i) {
+    if (symbols.at(i) != 0) { 
+      return false; }
+  }
+  return true;
 }

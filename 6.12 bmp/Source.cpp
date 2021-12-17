@@ -255,7 +255,7 @@ void changeRedBlue24Bit(string path, string path2) {
 	}
 }
 
-void insertBMP(string pathToSmall, string pathToBig) {
+void insert8BitBMP(string pathToSmall, string pathToBig) {
 	ifstream image1;
 	ifstream image2;
 	image1.open(pathToSmall, ios::binary | ios::in);
@@ -269,6 +269,7 @@ void insertBMP(string pathToSmall, string pathToBig) {
 		image1.seekg(18, ios::beg);
 		image1.read((char*)&width1, sizeof(int));
 		image1.read((char*)&height1, sizeof(int));
+		int oldWidth = width1;
 		if (width1 % 32 != 0) {
 			width1 = width1 + 32 - (width1 % 32);
 		}
@@ -284,6 +285,59 @@ void insertBMP(string pathToSmall, string pathToBig) {
 		cout << width2 << " " << height2 << endl;
 		image2.close();
 
+		ofstream image2;
+		image2.open(pathToBig, ios::binary | ios::in | ios::out);
+		if (!image2.is_open()) {
+			cout << "failed to open";
+			return;
+		}
+		int sizeInBytes = oldWidth / 8;
+		int sizeInBytes1 = width1 / 8;
+		int sizeInBytes2 = width2 / 8;
+		char* buffer = new char[sizeInBytes];
+		for (int i = 1; i < height1; i++) {
+			image1.seekg((-1) * sizeInBytes1 * i, ios::end);
+			image1.read(buffer, sizeInBytes * sizeof(char));
+			image2.seekp((-1) * sizeInBytes2 * i, ios::end);
+			image2.write(buffer, sizeInBytes * sizeof(char));
+		}
+
+		delete[] buffer;
+		image1.close();
+		image2.close();
+	}
+}
+
+void insert24BitBMP(string pathToSmall, string pathToBig) {
+	ifstream image1;
+	ifstream image2;
+	image1.open(pathToSmall, ios::binary | ios::in);
+	image2.open(pathToBig, ios::binary | ios::in);
+	if (!image1.is_open() || !image2.is_open()) {
+		cout << "failed to open";
+	}
+	else {
+		unsigned int width1 = 0;
+		unsigned int height1 = 0;
+		image1.seekg(18, ios::beg);
+		image1.read((char*)&width1, sizeof(int));
+		image1.read((char*)&height1, sizeof(int));
+		int oldWidth = width1;
+		/*if (width1 % 32 != 0) {
+			width1 = width1 + 32 - (width1 % 32);
+		}*/
+		unsigned int width2 = 0;
+		unsigned int height2 = 0;
+		image2.seekg(18, ios::beg);
+		image2.read((char*)&width2, sizeof(int));
+		image2.read((char*)&height2, sizeof(int));
+		/*if (width2 % 32 != 0) {
+			width2 = width2 + 32 - (width2 % 32);
+		}*/
+		cout << width1 << " " << height1 << endl;
+		cout << width2 << " " << height2 << endl;
+		image2.close();
+
 
 		ofstream image2;
 		image2.open(pathToBig, ios::binary | ios::in | ios::out);
@@ -291,8 +345,9 @@ void insertBMP(string pathToSmall, string pathToBig) {
 			cout << "failed to open";
 			return;
 		}
-		int sizeInBytes1 = width1 / 8;
-		int sizeInBytes2 = width2 / 8;
+		int sizeInBytes = oldWidth * 3;
+		int sizeInBytes1 = width1 * 3;
+		int sizeInBytes2 = width2 * 3;
 		char* buffer = new char[sizeInBytes1];
 		for (int i = 1; i < height1; i++) {
 			image1.seekg((-1) * sizeInBytes1 * i, ios::end);
