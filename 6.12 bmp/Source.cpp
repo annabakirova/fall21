@@ -289,7 +289,7 @@ void insert8BitBMP(string pathToSmall, string pathToBig) {
 		int stride1 = widthInBytes1 + paddingSize1;
 		int stride2 = widthInBytes2 + paddingSize2;
 		char* buffer = new char[stride1];
-		for (int i = 1; i < height1; i++) {
+		for (int i = 1; i <= height1; i++) {
 			image1.seekg((-1) * stride1 * i, ios::end);
 			image1.read(buffer, stride1 * sizeof(char));
 			image2.seekp((-1) * stride2 * i, ios::end);
@@ -338,7 +338,7 @@ void insert24BitBMP(string pathToSmall, string pathToBig) {
 			return;
 		}
 		char* buffer = new char[stride1];
-		for (int i = 1; i < height1; i++) {
+		for (int i = 1; i <= height1; i++) {
 			image1.seekg((-1) * stride1 * i, ios::end);
 			image1.read(buffer, stride1 * sizeof(char));
 			image2.seekp((-1) * stride2 * i, ios::end);
