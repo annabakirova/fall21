@@ -269,20 +269,11 @@ void insert8BitBMP(string pathToSmall, string pathToBig) {
 		image1.seekg(18, ios::beg);
 		image1.read((char*)&width1, sizeof(int));
 		image1.read((char*)&height1, sizeof(int));
-		int oldWidth = width1;
-		if (width1 % 32 != 0) {
-			width1 = width1 + 32 - (width1 % 32);
-		}
 		unsigned int width2 = 0;
 		unsigned int height2 = 0;
 		image2.seekg(18, ios::beg);
 		image2.read((char*)&width2, sizeof(int));
 		image2.read((char*)&height2, sizeof(int));
-		if (width2 % 32 != 0) {
-			width2 = width2 + 32 - (width2 % 32);
-		}
-		cout << width1 << " " << height1 << endl;
-		cout << width2 << " " << height2 << endl;
 		image2.close();
 
 		ofstream image2;
@@ -291,15 +282,18 @@ void insert8BitBMP(string pathToSmall, string pathToBig) {
 			cout << "failed to open";
 			return;
 		}
-		int sizeInBytes = oldWidth / 8;
-		int sizeInBytes1 = width1 / 8;
-		int sizeInBytes2 = width2 / 8;
-		char* buffer = new char[sizeInBytes];
+		int widthInBytes1 = width1 / 8;
+		int widthInBytes2 = width2 / 8;
+		int paddingSize1 = (4 - (widthInBytes1) % 4) % 4;
+		int paddingSize2 = (4 - (widthInBytes2) % 4) % 4;
+		int stride1 = widthInBytes1 + paddingSize1;
+		int stride2 = widthInBytes2 + paddingSize2;
+		char* buffer = new char[stride1];
 		for (int i = 1; i < height1; i++) {
-			image1.seekg((-1) * sizeInBytes1 * i, ios::end);
-			image1.read(buffer, sizeInBytes * sizeof(char));
-			image2.seekp((-1) * sizeInBytes2 * i, ios::end);
-			image2.write(buffer, sizeInBytes * sizeof(char));
+			image1.seekg((-1) * stride1 * i, ios::end);
+			image1.read(buffer, stride1 * sizeof(char));
+			image2.seekp((-1) * stride2 * i, ios::end);
+			image2.write(buffer, stride1 * sizeof(char));
 		}
 
 		delete[] buffer;
@@ -322,22 +316,20 @@ void insert24BitBMP(string pathToSmall, string pathToBig) {
 		image1.seekg(18, ios::beg);
 		image1.read((char*)&width1, sizeof(int));
 		image1.read((char*)&height1, sizeof(int));
-		int oldWidth = width1;
-		/*if (width1 % 32 != 0) {
-			width1 = width1 + 32 - (width1 % 32);
-		}*/
+
 		unsigned int width2 = 0;
 		unsigned int height2 = 0;
 		image2.seekg(18, ios::beg);
 		image2.read((char*)&width2, sizeof(int));
 		image2.read((char*)&height2, sizeof(int));
-		/*if (width2 % 32 != 0) {
-			width2 = width2 + 32 - (width2 % 32);
-		}*/
-		cout << width1 << " " << height1 << endl;
-		cout << width2 << " " << height2 << endl;
 		image2.close();
 
+		int widthInBytes1 = width1 * 3;
+		int widthInBytes2 = width2 * 3;
+		int paddingSize1 = (4 - (widthInBytes1) % 4) % 4;
+		int paddingSize2 = (4 - (widthInBytes2) % 4) % 4;
+		int stride1 = widthInBytes1 + paddingSize1;
+		int stride2 = widthInBytes2 + paddingSize2;
 
 		ofstream image2;
 		image2.open(pathToBig, ios::binary | ios::in | ios::out);
@@ -345,15 +337,12 @@ void insert24BitBMP(string pathToSmall, string pathToBig) {
 			cout << "failed to open";
 			return;
 		}
-		int sizeInBytes = oldWidth * 3;
-		int sizeInBytes1 = width1 * 3;
-		int sizeInBytes2 = width2 * 3;
-		char* buffer = new char[sizeInBytes1];
+		char* buffer = new char[stride1];
 		for (int i = 1; i < height1; i++) {
-			image1.seekg((-1) * sizeInBytes1 * i, ios::end);
-			image1.read(buffer, sizeInBytes1 * sizeof(char));
-			image2.seekp((-1) * sizeInBytes2 * i, ios::end);
-			image2.write(buffer, sizeInBytes1 * sizeof(char));
+			image1.seekg((-1) * stride1 * i, ios::end);
+			image1.read(buffer, stride1 * sizeof(char));
+			image2.seekp((-1) * stride2 * i, ios::end);
+			image2.write(buffer, stride1 * sizeof(char));
 		}
 
 		delete[] buffer;
